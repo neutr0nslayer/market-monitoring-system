@@ -5,8 +5,8 @@ const auth = {};
 // Middleware to authenticate and authorize company users
 auth.authenticateCompany = async (req, res, next) => {
     try {
-        // Get token from the Authorization header
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+        // Get token from cookies
+        const token = req.cookies?.token;
         if (!token) {
             return res.status(401).json({ error: 'No token provided' });
         }
@@ -30,7 +30,8 @@ auth.authenticateCompany = async (req, res, next) => {
 // Middleware to authenticate consumers
 auth.authenticateConsumer = async (req, res, next) => {
     try {
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+        // Get token from cookies
+        const token = req.cookies?.token;
         if (!token) {
             return res.status(401).json({ error: 'No token provided' });
         }
@@ -53,7 +54,8 @@ auth.authenticateConsumer = async (req, res, next) => {
 // Middleware to authenticate admin
 auth.authenticateAdmin = async (req, res, next) => {
     try {
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+        // Get token from cookies
+        const token = req.cookies?.token;
         if (!token) {
             return res.status(401).json({ error: 'No token provided' });
         }

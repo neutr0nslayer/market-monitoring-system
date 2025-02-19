@@ -50,7 +50,7 @@ router.post('/submit-product', async (req, res) => {
 //     }
 // });
 
-router.get('/view-submissions', async (req, res) => {
+router.get('/view-submissions', authenticateCompany, async (req, res) => {
     try {
         const submissions = await ProductMetrics.find();
         res.status(200).json({ message: 'Submissions fetched successfully', data: submissions });
