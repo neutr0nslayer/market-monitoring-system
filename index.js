@@ -1,11 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const userHandler = require('./routeHandler/userHandler');
+const companyHandler = require('./routeHandler/companyHandler');
+const consumerHandler = require('./routeHandler/consumerHandler');
+const adminHandler = require('./routeHandler/adminHandler');
 
 // express app initialization
 const app = express();
+dotenv.config();
 app.use(express.json());
-const port = 3000;
 
 // Connect to MongoDB
 const mongoURI = 'mongodb://192.168.0.109:27017/market-monitoring-system';
@@ -16,6 +20,8 @@ mongoose.connect(mongoURI)
 
 // app routes
 app.use('/user', userHandler);
+app.use('/company', companyHandler);
+app.use('/consumer', consumerHandler);
 
 app.get('/', (req, res) => {
   res.send('Hello, Docker!');
@@ -30,8 +36,8 @@ app.use((err, req, res, next) => {
 });
 
 // start the server
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server running at http://localhost:${process.env.PORT}`);
 });
 
 
