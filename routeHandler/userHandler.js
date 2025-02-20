@@ -9,6 +9,11 @@ const userSchema = require('../schemas/userSchema');
 // Correct way to define the model
 const User = mongoose.model('User', userSchema);
 
+// Render signup page
+router.get('/signup', (req, res) => {
+    res.render('signup');
+});
+
 // Signup
 router.post('/signup', async (req, res) => {
     try {
