@@ -9,9 +9,9 @@ const ProductMetrics = mongoose.model('ProductMetric', productMetricsSchema);
 
 
 // Create a new product submission (Company only)
-router.post('/submit-product', async (req, res) => {
+router.post('/submit-product', authenticateCompany, async (req, res) => {
     try {
-        const { productName, productOrigin, basePrice, sellingPrice, quantityBought } = req.body;
+        const { companyId, productID, productName, productOrigin, basePrice, sellingPrice, quantityBought } = req.body;
 
         if (!productName || !basePrice || !sellingPrice || !quantityBought) {
             return res.status(400).json({ error: 'Missing required fields' });

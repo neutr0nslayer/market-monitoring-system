@@ -1,21 +1,19 @@
 const mongoose = require('mongoose');
 
 const productMetricsSchema = new mongoose.Schema({
-    // companyId: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Company',  // Link to the company that owns the product.
-    //     required: true
-    // },
-    productName: {
+    companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',  // Link to the company that owns the product.
+        required: true
+    },
+    productID: {
         type: String,
+        ref: 'Product',  // Link to the product that was bought.
         required: true
     },
-    productOrigin: {
+    toCompany: {
         type: String,  // Location or source of the product (e.g., supplier, country, etc.)
-        required: true
-    },
-    basePrice: {
-        type: Number,  // Price the company pays for the product
+        ref: 'User',
         required: true
     },
     sellingPrice: {
