@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
@@ -61,3 +62,4 @@ router.get('/view-submissions', authenticateCompany, async (req, res) => {
 
 // export the router
 module.exports = router;
+

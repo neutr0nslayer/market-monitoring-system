@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -78,3 +79,4 @@ router.get('/all', async (req, res) => {
 
 // Export the router
 module.exports = router;
+

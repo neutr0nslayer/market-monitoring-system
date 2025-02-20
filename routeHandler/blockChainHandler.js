@@ -1,3 +1,4 @@
+
 const express = require('express');
 const Blockchain = require('../blockchain');
 const Block = require('../schemas/block');
@@ -58,4 +59,5 @@ router.get('/validate', (req, res) => {
 });
 
 // export the router
+
 module.exports = router;
