@@ -18,12 +18,12 @@ const Product = mongoose.model('Product', product);
 router.get('/new', async (req, res) => {
     // Fetch data here from your respective DB model collections
 
-    // const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    // const companyId = decoded.userId;
+    const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const companyId = decoded.userId;
     const products = await Product.find();
     const toCompanies = await User.find({ role: 'company' });
 
-    res.render('productMetricsForm', { products, toCompanies });
+    res.render('productMetricsForm', { companyId, products, toCompanies });
 });
 
 // Create a new product submission (Company only)
