@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" href="/path/to/your/styles.css"> <!-- Add your stylesheet path here -->
+    <style>
+        .toggle-eye {
+            cursor: pointer;
+            margin-left: -30px;
+            z-index: 2;
+            background: none;
+            border: none;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h2>Signup</h2>
+        <form id="signupForm" action="/user/signup" method="POST">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group password-container">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="button" class="toggle-eye" onclick="togglePassword('password', this)">
+                    👁️
+                </button>
+            </div>
+            <div class="form-group password-container">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <button type="button" class="toggle-eye" onclick="togglePassword('confirmPassword', this)">
+                    👁️
+                </button>
+            </div>
+            <div class="form-group">
+                <label for="role">Role:</label>
+                <select id="role" name="role" required onchange="toggleCompanyFields()">
+                    <option value="consumer">Consumer</option>
+                    <option value="company">Company</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <!-- Company Specific Fields -->
+            <div id="company-fields" style="display: none;">
+                <div class="form-group">
+                    <label for="companyName">Company Name:</label>
+                    <input type="text" id="companyName" name="companyDetails[name]">
+                </div>
+                <div class="form-group">
+                    <label for="registrationNumber">Registration Number:</label>
+                    <input type="text" id="registrationNumber" name="companyDetails[registrationNumber]">
+                </div>
+                <div class="form-group">
+                    <label for="companyAddress">Address:</label>
+                    <input type="text" id="companyAddress" name="companyDetails[address]">
+                </div>
+                <div class="form-group">
+                    <label for="companyWebsite">Website:</label>
+                    <input type="url" id="companyWebsite" name="companyDetails[website]">
+                </div>
+            </div>
+            <button type="submit">Signup</button>
+        </form>
+        <% if (typeof error !== 'undefined') { %>
+            <p class="error"><%= error %></p>
+        <% } %>
+    </div>
+    <script>
+        function toggleCompanyFields() {
+            const roleSelect = document.getElementById('role');
+            const companyFields = document.getElementById('company-fields');
+            if (roleSelect.value === 'company') {
+                companyFields.style.display = 'block';
+                // Making company fields required when role is company
+                document.getElementById('companyName').required = true;
+                document.getElementById('registrationNumber').required = true;
+                document.getElementById('companyAddress').required = true;
+            } else {
+                companyFields.style.display = 'none';
+                // Remove required attribute from company fields when not needed
+                document.getElementById('companyName').required = false;
+                document.getElementById('registrationNumber').required = false;
+                document.getElementById('companyAddress').required = false;
+            }
+        }
+
+        function togglePassword(fieldId, btn) {
+            const input = document.getElementById(fieldId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        // Validate confirm password on form submission
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+            }
+        });
+    </script>
+</body>
+</html>

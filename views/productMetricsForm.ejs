@@ -1,0 +1,60 @@
+<!-- filepath: /e:/Likhon/East West University/market-monitoring-system/views/productMetricsForm.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Product Metrics</title>
+</head>
+<body>
+    <h1>Create Product Metrics Record</h1>
+    <form action="/productMetrics/new" method="POST">
+        <!-- Company selection -->
+        <div>
+            <label for="companyId">Company:</label>
+            <select name="companyId" id="companyId" required>
+                <option value="">Select a company</option>
+                
+            </select>
+        </div>
+
+        <!-- Product selection -->
+        <div>
+            <label for="productID">Product:</label>
+            <select name="productID" id="productID" required>
+                <option value="">Select a product</option>
+                <% products.forEach(function(product) { %>
+                    <option value="<%= product._id %>"><%= product.name %></option>
+                <% }); %>
+            </select>
+        </div>
+
+        <!-- toCompany selection -->
+        <div>
+            <label for="toCompany">To Company / Source:</label>
+            <select name="toCompany" id="toCompany" required>
+                <option value="">Select a company/source</option>
+                <% toCompanies.forEach(function(user) { %>
+                    <option value="<%= user._id %>"><%= user.name %></option>
+                <% }); %>
+            </select>
+        </div>
+
+        <!-- Selling Price input -->
+        <div>
+            <label for="sellingPrice">Selling Price:</label>
+            <input type="number" id="sellingPrice" name="sellingPrice" step="0.01" required>
+        </div>
+
+        <!-- Quantity Bought input -->
+        <div>
+            <label for="quantityBought">Quantity Bought:</label>
+            <input type="number" id="quantityBought" name="quantityBought" required>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</body>
+</html>

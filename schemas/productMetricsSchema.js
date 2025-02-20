@@ -8,12 +8,12 @@ const productMetricsSchema = new mongoose.Schema({
         required: true
     },
     productID: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',  // Link to the product that was bought.
         required: true
     },
     toCompany: {
-        type: String,  // Location or source of the product (e.g., supplier, country, etc.)
+        type: mongoose.Schema.Types.ObjectId,  // Location or source of the product (e.g., supplier, country, etc.)
         ref: 'User',
         required: true
     },
