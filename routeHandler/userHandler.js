@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -30,22 +31,39 @@ router.post('/signup', async (req, res) => {
     }
 });
 
+// Render login page
+router.get('/login', (req, res) => {
+    res.render('login');
+});
+
 // Login
 router.post('/login', async (req, res) => {
     try {
+        console.log(req.body);
         const user = await User.findOne({ username: req.body.username });
+        //console.log(user);
         if (!user) {
-            return res.status(404).json({ error: "Authorization falied" });
+            return res.status(404).render('login', { error: "Authorization failed" });
         }
         if (await bcrypt.compare(req.body.password, user.password)) {
             const token = jwt.sign({ username: user.username, userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
             res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: 3600000 }); // 1 hour
-            res.status(200).json({ message: 'Login successful', access_token: token });
+            
+            // Redirect based on user role
+            if (user.role === 'admin') {
+                res.redirect('/admin/companies');
+            } else if (user.role === 'company') {
+                res.redirect('/company/dashboard');
+            } else if (user.role === 'consumer') {
+                res.redirect('/consumer/dashboard');
+            } else {
+                res.status(400).render('login', { error: "Invalid user role" });
+            }
         } else {
-            res.status(401).json({ error: "Invalid credentials" });
+            res.status(401).render('login', { error: "Invalid credentials" });
         }
     } catch (err) {
-        res.status(500).json({ error: "There was an error while logging in" });
+        res.status(500).render('login', { error: "There was an error while logging in" });
     }
 });
 
@@ -61,3 +79,4 @@ router.get('/all', async (req, res) => {
 
 // Export the router
 module.exports = router;
+
