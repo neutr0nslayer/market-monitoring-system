@@ -39,6 +39,7 @@ router.get('/submit-product', async (req, res) => {
     const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const companyId = decoded.userId;
     const products = await Product.find({ companyId });
+    console.log(products);
 
     // Fetch unique company names along with their user IDs
     const toCompanies = await User.aggregate([

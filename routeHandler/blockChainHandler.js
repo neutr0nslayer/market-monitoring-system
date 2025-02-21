@@ -1,7 +1,9 @@
 
+const mongoose = require('mongoose');
 const express = require('express');
 const Blockchain = require('../blockchain');
-const Block = require('../schemas/block');
+const block = require('../schemas/block');
+const Block = mongoose.model('Block', block);
 const router = express.Router();
 const { authenticateAdmin } = require('../middlewares/authMiddleware');
 

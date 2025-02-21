@@ -1,5 +1,9 @@
 const crypto = require('crypto');
-const Block = require('./schemas/block');  // Import Block model
+const mongoose = require('mongoose');
+const block = require('./schemas/block');  
+
+// Import Block model
+const Block = mongoose.model('Block', block);
 
 // Blockchain class
 class Blockchain {
