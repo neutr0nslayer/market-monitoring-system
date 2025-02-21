@@ -1,4 +1,3 @@
-// blockchain.js
 const crypto = require('crypto');
 const Block = require('./schemas/block');  // Import Block model
 
@@ -23,7 +22,7 @@ class Blockchain {
           timestamp: Date.now(),
           data: "Genesis Block",
           previousHash: "0",
-          hash: "0000000000"  // Fixed hash for Genesis block
+          hash: this.calculateHash("Genesis Block" + Date.now())
         });
         await genesisBlock.save();  // Save the Genesis block to the database
         this.chain.push(genesisBlock);  // Add it to the in-memory chain
@@ -36,18 +35,18 @@ class Blockchain {
   }
 
   // Add a new block
-  addBlock(newBlockData) {
+  async addBlock(newBlockData) {
     const previousBlock = this.chain[this.chain.length - 1];
     const newBlock = new Block({
       index: this.chain.length,
       timestamp: Date.now(),
       data: newBlockData,
-      previousHash: previousBlock.hash,
-      hash: this.calculateHash(newBlockData)
+      previousHash: previousBlock ? previousBlock.hash : "0",
+      hash: this.calculateHash(newBlockData + Date.now())
     });
 
     // Save the new block to the database
-    newBlock.save();
+    await newBlock.save();
     this.chain.push(newBlock);  // Add the new block to the in-memory chain
   }
 
@@ -55,7 +54,7 @@ class Blockchain {
   calculateHash(data) {
     return crypto
       .createHash('sha256')
-      .update(data + Date.now())
+      .update(data)
       .digest('hex');
   }
 
@@ -66,7 +65,7 @@ class Blockchain {
       const previousBlock = this.chain[i - 1];
 
       // Check if hash is valid
-      if (currentBlock.hash !== this.calculateHash(currentBlock.data)) {
+      if (currentBlock.hash !== this.calculateHash(currentBlock.data + currentBlock.timestamp)) {
         return false;
       }
 

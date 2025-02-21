@@ -12,7 +12,6 @@ const adminHandler = require('./routeHandler/adminHandler');
 const blockchainHandler = require('./routeHandler/blockChainHandler');
 const productHandler = require('./routeHandler/productHandler');
 
-
 // express app initialization
 const app = express();
 dotenv.config();

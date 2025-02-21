@@ -1,4 +1,3 @@
-<!-- filepath: /e:/Likhon/East West University/market-monitoring-system/views/productMetricsForm.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,7 @@
 </head>
 <body>
     <h1>Create Product Metrics Record</h1>
-    <form action="/productMetrics/new" method="POST">
+    <form action="/company/submit-product" method="POST">
         <!-- Company selection -->
         <div>
             <label for="companyId">Company:</label>
@@ -20,7 +19,7 @@
             <select name="productID" id="productID" required>
                 <option value="">Select a product</option>
                 <% products.forEach(function(product) { %>
-                    <option value="<%= product._id %>"><%= product.name %></option>
+                    <option value="<%= product._id %>"><%= product.productName %></option>
                 <% }); %>
             </select>
         </div>
@@ -30,8 +29,8 @@
             <label for="toCompany">To Company / Source:</label>
             <select name="toCompany" id="toCompany" required>
                 <option value="">Select a company/source</option>
-                <% toCompanies.forEach(function(user) { %>
-                    <option value="<%= user._id %>"><%= user.name %></option>
+                <% toCompanies.forEach(function(company) { %>
+                    <option value="<%= company.userId %>"><%= company._id %></option>
                 <% }); %>
             </select>
         </div>

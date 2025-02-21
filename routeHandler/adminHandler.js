@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
 const router = express.Router();
 const userSchema = require('../schemas/userSchema'); // User Schema
 const complaintSchema = require('../schemas/complaintSchema'); // Complaint Schema

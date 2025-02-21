@@ -3,11 +3,12 @@ const express = require('express');
 const Blockchain = require('../blockchain');
 const Block = require('../schemas/block');
 const router = express.Router();
+const { authenticateAdmin } = require('../middlewares/authMiddleware');
 
 const blockchain = new Blockchain();
 
 // Route to get the current blockchain
-router.get('/', async (req, res) => {
+router.get('/', authenticateAdmin, async (req, res) => {
   try {
     const blocks = await Block.find({});  // Use the Block model to fetch data
     res.json(blocks);
@@ -18,7 +19,7 @@ router.get('/', async (req, res) => {
 
 // Route to add a block
 // index.js
-router.post('/add-block', async (req, res) => {
+router.post('/add-block', authenticateAdmin, async (req, res) => {
     const { data } = req.body;
   
     try {
@@ -50,7 +51,7 @@ router.post('/add-block', async (req, res) => {
   
 
 // Route to validate blockchain
-router.get('/validate', (req, res) => {
+router.get('/validate', authenticateAdmin, (req, res) => {
   if (blockchain.isValid()) {
     res.json({ message: 'Blockchain is valid' });
   } else {
