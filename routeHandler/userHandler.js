@@ -44,7 +44,6 @@ router.get('/login', (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
     try {
-        console.log(req.body);
         const user = await User.findOne({ username: req.body.username });
         //console.log(user);
         if (!user) {

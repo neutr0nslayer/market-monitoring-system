@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
@@ -13,6 +12,24 @@ const ProductMetrics = mongoose.model('ProductMetric', productMetricsSchema);
 const User = mongoose.model('User', userSchema);
 const Product = mongoose.model('Product', product);
 
+// Add this route to fetch company details and products
+router.get('/dashboard', authenticateCompany, async (req, res) => {
+    try {
+        const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+        const companyId = decoded.userId;
+
+        // Fetch company details
+        const company = await User.findById(companyId);
+
+        // Fetch products of the company
+        const products = await Product.find({ companyId });
+
+        res.render('companyDashboard', { company, products });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error while fetching dashboard data' });
+    }
+});
 
 // Example Express route
 router.get('/new', async (req, res) => {
