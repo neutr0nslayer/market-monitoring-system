@@ -35,7 +35,7 @@ app.use('/blockchain', blockchainHandler);
 app.use('/product', productHandler);
 
 app.get('/', (req, res) => {
-  res.send('Hello, Docker!');
+  res.redirect('/user/login');
 });
 
 // default error handler
