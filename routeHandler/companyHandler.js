@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const productMetricsSchema = require('../schemas/productMetricsSchema');
 const userSchema = require('../schemas/userSchema');
 const product = require('../schemas/productSchema');
+const Blockchain = require('../blockchain');
 const { authenticateCompany } = require('../middlewares/authMiddleware');
 
 // Assuming you've already created a model for company data.
@@ -32,13 +33,19 @@ router.get('/dashboard', authenticateCompany, async (req, res) => {
 });
 
 // Example Express route
-router.get('/new', async (req, res) => {
+router.get('/submit-product', async (req, res) => {
     // Fetch data here from your respective DB model collections
 
     const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const companyId = decoded.userId;
-    const products = await Product.find();
-    const toCompanies = await User.find({ role: 'company' });
+    const products = await Product.find({ companyId });
+    console.log(products);
+
+    // Fetch unique company names along with their user IDs
+    const toCompanies = await User.aggregate([
+        { $match: { role: 'company' } },
+        { $group: { _id: "$companyDetails.name", userId: { $first: "$_id" } } }
+    ]);
 
     res.render('productMetricsForm', { companyId, products, toCompanies });
 });
@@ -46,9 +53,9 @@ router.get('/new', async (req, res) => {
 // Create a new product submission (Company only)
 router.post('/submit-product', authenticateCompany, async (req, res) => {
     try {
-        const { companyId, productID, productOrigin, basePrice, sellingPrice, quantityBought } = req.body;
+        const { companyId, productID, productOrigin, toCompany, sellingPrice, quantityBought } = req.body;
 
-        if (!companyId || !productID || !basePrice || !sellingPrice || !quantityBought) {
+        if (!companyId || !productID || !toCompany || !sellingPrice || !quantityBought) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
@@ -61,12 +68,24 @@ router.post('/submit-product', authenticateCompany, async (req, res) => {
             companyId,
             productID,
             productOrigin,
-            basePrice,
+            toCompany,
             sellingPrice,
             quantityBought
         });
 
         await newProduct.save();
+
+        const blockchain = new Blockchain();
+        // Add the new product data to the blockchain
+        await blockchain.addBlock({
+            companyId,
+            productID,
+            productOrigin,
+            toCompany,
+            sellingPrice,
+            quantityBought
+        });
+
         res.status(201).json({ message: 'Product submitted successfully' });
     } catch (err) {
         console.error(err);
@@ -85,4 +104,3 @@ router.get('/view-submissions', authenticateCompany, async (req, res) => {
 
 // export the router
 module.exports = router;
-

@@ -8,7 +8,7 @@ const productMetricsSchema = new mongoose.Schema({
         required: true
     },
     productID: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Product',  // Link to the product that was bought.
         required: true
     },

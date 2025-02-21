@@ -1,10 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
-const Product = require('../schemas/productSchema');
+const productSchema = require('../schemas/productSchema');
 const jwt = require('jsonwebtoken');
 const { authenticateCompany, authenticateAdmin } = require('../middlewares/authMiddleware');
-const cookieParser = require('cookie-parser');
+
+// mongoose model
+const Product = mongoose.model('Product', productSchema);
 
 // Helper function to generate product ID
 const generateProductID = (companyID, productName) => {
@@ -12,6 +14,11 @@ const generateProductID = (companyID, productName) => {
     
     return `'${companyID}'|'${cleanName}'`;
 };
+
+// Add this route to render the add product form
+router.get('/add', authenticateCompany, (req, res) => {
+    res.render('addProduct');
+});
 
 // Create a new product
 router.post('/create', authenticateCompany, async (req, res) => {
@@ -33,9 +40,11 @@ router.post('/create', authenticateCompany, async (req, res) => {
 
         // Generate unique product ID
         const productID = generateProductID(actualCompanyId, productName);
+        console.log(productID);
 
         // Check if product ID already exists
         const existingProduct = await Product.findOne({ productID });
+        console.log(existingProduct);
         if (existingProduct) {
             return res.status(400).json({ error: 'Product ID already exists. Please try again.' });
         }

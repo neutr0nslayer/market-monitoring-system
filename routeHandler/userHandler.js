@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -55,7 +54,7 @@ router.post('/login', async (req, res) => {
             
             // Redirect based on user role
             if (user.role === 'admin') {
-                res.redirect('/admin/companies');
+                res.redirect('/admin/dashboard');
             } else if (user.role === 'company') {
                 res.redirect('/company/dashboard');
             } else if (user.role === 'consumer') {
@@ -71,6 +70,12 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// Logout
+router.get('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/user/login');
+});
+
 // Get all users
 router.get('/all', async (req, res) => {
     try {
@@ -83,4 +88,3 @@ router.get('/all', async (req, res) => {
 
 // Export the router
 module.exports = router;
-

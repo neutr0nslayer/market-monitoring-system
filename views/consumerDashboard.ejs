@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumer Dashboard</title>
+    <link rel="stylesheet" href="/path/to/your/css/styles.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <h1>Consumer Dashboard</h1>
+
+    <h2>My Complaints</h2>
+    <% if (complaints.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% complaints.forEach(complaint => { %>
+                    <tr>
+                        <td><%= complaint.title %></td>
+                        <td><%= complaint.description %></td>
+                        <td><%= complaint.companyId.companyDetails.name %></td>
+                        <td><%= complaint.status %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No complaints available.</p>
+    <% } %>
+
+    <button><a href="/consumer/submit-complaint">Submit Complaint</a></button>
+
+    <%- include('partials/footer') %>
+</body>
+</html>
