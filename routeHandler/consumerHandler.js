@@ -7,8 +7,20 @@ const { authenticateConsumer } = require('../middlewares/authMiddleware');
 // Create a Complaint model
 const Complaint = mongoose.model('Complaint', complaintSchema);
 
+// Add this route to fetch consumer's complaints
+router.get('/dashboard', authenticateConsumer, async (req, res) => {
+    try {
+        const complaints = await Complaint.find({ consumerId: req.user.userId });
+
+        res.render('consumerDashboard', { complaints });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error while fetching dashboard data' });
+    }
+});
+
 // Submit a complaint (Consumer only)
-router.post('/submit-complaint', async (req, res) => {
+router.post('/submit-complaint',authenticateConsumer, async (req, res) => {
     try {
         const { companyId, title, description } = req.body;
 
@@ -32,7 +44,7 @@ router.post('/submit-complaint', async (req, res) => {
 });
 
 // View consumer’s complaints (Consumer only)
-router.get('/my-complaints', async (req, res) => {
+router.get('/my-complaints', authenticateConsumer, async (req, res) => {
     try {
         const complaints = await Complaint.find({ consumerId: req.user.userId });
 
