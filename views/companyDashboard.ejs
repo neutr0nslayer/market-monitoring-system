@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Dashboard</title>
+    <link rel="stylesheet" href="/path/to/your/css/styles.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <h1>Company Dashboard</h1>
+
+    <h2>Company Details</h2>
+    <p><strong>Name:</strong> <%= company.companyDetails.name %></p>
+    <p><strong>Address:</strong> <%= company.companyDetails.address %></p>
+    <p><strong>Website:</strong> <%= company.companyDetails.website %></p>
+
+    <h2>Products</h2>
+    <% if (products.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Origin</th>
+                    <th>Base Price</th>
+                    <th>Selling Price</th>
+                    <th>Quantity Bought</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% products.forEach(product => { %>
+                    <tr>
+                        <td><%= product.name %></td>
+                        <td><%= product.productOrigin %></td>
+                        <td><%= product.basePrice %></td>
+                        <td><%= product.sellingPrice %></td>
+                        <td><%= product.quantityBought %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No products available.</p>
+    <% } %>
+
+    <%- include('partials/footer') %>
+</body>
+</html>
