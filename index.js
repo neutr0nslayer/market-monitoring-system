@@ -23,6 +23,9 @@ app.use(bodyParser.urlencoded({ extended: true })); // Add this line
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Serve Bootstrap CSS and JS from node_modules
+app.use('/bootstrap', express.static(path.join(__dirname, 'node_modules/bootstrap/dist')));
+
 // Connect to MongoDB
 connectDB();
 

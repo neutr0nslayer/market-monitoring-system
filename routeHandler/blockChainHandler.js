@@ -5,7 +5,7 @@ const Blockchain = require('../blockchain');
 const block = require('../schemas/block');
 const Block = mongoose.model('Block', block);
 const router = express.Router();
-const { authenticateAdmin } = require('../middlewares/authMiddleware');
+const { authenticateAdmin, authenticateCompany } = require('../middlewares/authMiddleware');
 
 const blockchain = new Blockchain();
 
@@ -21,7 +21,7 @@ router.get('/', authenticateAdmin, async (req, res) => {
 
 // Route to add a block
 // index.js
-router.post('/add-block', authenticateAdmin, async (req, res) => {
+router.post('/add-block', authenticateCompany, async (req, res) => {
     const { data } = req.body;
   
     try {
