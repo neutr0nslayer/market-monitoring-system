@@ -24,12 +24,24 @@ router.get('/dashboard', authenticateAdmin, async (req, res) => {
         const complaints = await Complaint.find().populate('consumerId', 'name email').populate('companyId', 'companyDetails.name');
 
         // Fetch data from Block collection
-        const blocks = await Block.find().sort({ index: -1 }).limit(10); // Example: Fetch latest 10 blocks
+        // const blocks = await Block.find().sort({ index: -1 }).limit(10); // Example: Fetch latest 10 blocks
 
-        res.render('adminDashboard', { companies, complaints, blocks });
+        res.render('adminDashboard', { companies, complaints});
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error while fetching dashboard data' });
+    }
+});
+
+// Get all company details (Admin only)
+router.get('/showblockinfo', authenticateAdmin, async (req, res) => {
+    try {
+        const blocks = await Block.find().sort({ index: -1 }).limit(10);
+
+        res.render('showBlockInfo', { blocks});
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error fetching block info details' });
     }
 });
 
