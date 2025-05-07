@@ -4,116 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="/path/to/your/css/styles.css">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
+        html, body {
+            height: 100%;
         }
-        table, th, td {
-            border: 1px solid black;
+        body {
+            display: flex;
+            flex-direction: column;
         }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
+        main {
+            flex: 1;
         }
     </style>
 </head>
 <body>
     <%- include('partials/header') %>
 
-    <h1>Admin Dashboard</h1>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Admin Dashboard</h1>
 
-    <h2>Company Details</h2>
-    <% if (companies.length > 0) { %>
-        <table>
-            <thead>
-                <tr>
-                    <th>Company Name</th>
-                    <th>Email</th>
-                    <th>Address</th>
-                    <th>Website</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% companies.forEach(company => { %>
-                    <tr>
-                        <td><%= company.companyDetails.name %></td>
-                        <td><%= company.email %></td>
-                        <td><%= company.companyDetails.address %></td>
-                        <td><%= company.companyDetails.website %></td>
-                    </tr>
-                <% }) %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <p>No companies available.</p>
-    <% } %>
+        <!-- Company Details Section -->
+        <h2 class="mb-3">Company Details</h2>
+        <% if (companies.length > 0) { %>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Company Name</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Website</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% companies.forEach(company => { %>
+                            <tr>
+                                <td><%= company.companyDetails.name %></td>
+                                <td><%= company.email %></td>
+                                <td><%= company.companyDetails.address %></td>
+                                <td><%= company.companyDetails.website %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <p class="text-muted">No companies available.</p>
+        <% } %>
 
-    <h2>Consumer Complaints</h2>
-    <% if (complaints.length > 0) { %>
-        <table>
-            <thead>
-                <tr>
-                    <th>Consumer Name</th>
-                    <th>Consumer Email</th>
-                    <th>Company Name</th>
-                    <th>Complaint</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% complaints.forEach(complaint => { %>
-                    <tr>
-                        <td><%= complaint.consumerId.name %></td>
-                        <td><%= complaint.consumerId.email %></td>
-                        <td><%= complaint.companyId.companyDetails.name %></td>
-                        <td><%= complaint.description %></td>
-                    </tr>
-                <% }) %>
-            </tbody>
-        </table>
-    <% } else { %>
-        <p>No complaints available.</p>
-    <% } %>
+        <!-- Consumer Complaints Section -->
+        <h2 class="mt-5 mb-3">Consumer Complaints</h2>
+        <% if (complaints.length > 0) { %>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Consumer Name</th>
+                            <th>Consumer Email</th>
+                            <th>Company Name</th>
+                            <th>Complaint</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% complaints.forEach(complaint => { %>
+                            <tr>
+                                <td><%= complaint.consumerId.name %></td>
+                                <td><%= complaint.consumerId.email %></td>
+                                <td><%= complaint.companyId.companyDetails.name %></td>
+                                <td><%= complaint.description %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <p class="text-muted">No complaints available.</p>
+        <% } %>
 
-    <h2>Blocks</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Index</th>
-                <th>Timestamp</th>
-                <th>Data</th>
-                <th>Previous Hash</th>
-                <th>Hash</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% blocks.forEach(block => { %>
-                <tr>
-                    <td><%= block.index %></td>
-                    <td><%= new Date(block.timestamp).toLocaleString() %></td>
-                    <td>
-                        <table>
-                            <tbody>
-                                <% Object.keys(block.data).forEach(key => { %>
-                                    <tr>
-                                        <td><strong><%= key %>:</strong></td>
-                                        <td><%= block.data[key] %></td>
-                                    </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
-                    </td>
-                    <td><%= block.previousHash %></td>
-                    <td><%= block.hash %></td>
-                </tr>
-            <% }); %>
-        </tbody>
-    </table>
+        <!-- Blockchain Information Section -->
+        <h2 class="mt-5 mb-3">Blockchain Information</h2>
+        <a href="/admin/showblockinfo" class="btn btn-primary">View Blockchain Info</a>
 
     <%- include('partials/footer') %>
 </body>

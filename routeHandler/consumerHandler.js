@@ -12,7 +12,7 @@ const User = mongoose.model('User', userSchema);
 // Add this route to fetch consumer's complaints
 router.get('/dashboard', authenticateConsumer, async (req, res) => {
     try {
-        const complaints = await Complaint.find({ consumerId: req.user.userId });
+        const complaints = await Complaint.find({ consumerId: req.user.userId }).populate('companyId', 'companyDetails.name');
 
         res.render('consumerDashboard', { complaints });
     } catch (err) {
@@ -38,7 +38,7 @@ router.get('/submit-complaint', authenticateConsumer, async (req, res) => {
 });
 
 // Submit a complaint (Consumer only)
-router.post('/submit-complaint',authenticateConsumer, async (req, res) => {
+router.post('/submit-complaint', authenticateConsumer, async (req, res) => {
     try {
         const { companyId, title, description } = req.body;
 

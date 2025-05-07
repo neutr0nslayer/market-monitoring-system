@@ -7,11 +7,13 @@ const userSchema = require('../schemas/userSchema');
 const product = require('../schemas/productSchema');
 const Blockchain = require('../blockchain');
 const { authenticateCompany } = require('../middlewares/authMiddleware');
+const block = require('../schemas/block');
 
 // Assuming you've already created a model for company data.
 const ProductMetrics = mongoose.model('ProductMetric', productMetricsSchema);
 const User = mongoose.model('User', userSchema);
 const Product = mongoose.model('Product', product);
+const Block = mongoose.model('Block', block);
 
 // Add this route to fetch company details and products
 router.get('/dashboard', authenticateCompany, async (req, res) => {
@@ -76,15 +78,16 @@ router.post('/submit-product', authenticateCompany, async (req, res) => {
         await newProduct.save();
 
         const blockchain = new Blockchain();
+        // Get the last block from the database
+        const lastBlock = await Block.findOne().sort({ index: -1 }); // Get the block with the highest index
+
+        // If no blocks exist (in case of a fresh start), set the index to 0
+        const newIndex = lastBlock ? lastBlock.index + 1 : 0;
+
+        // Create a new block with the necessary fields
+        
         // Add the new product data to the blockchain
-        await blockchain.addBlock({
-            companyId,
-            productID,
-            productOrigin,
-            toCompany,
-            sellingPrice,
-            quantityBought
-        });
+        await blockchain.addBlock(newProduct);
 
         res.status(201).json({ message: 'Product submitted successfully' });
     } catch (err) {
