@@ -4,6 +4,8 @@ const router = express.Router();
 const productSchema = require('../schemas/productSchema');
 const jwt = require('jsonwebtoken');
 const { authenticateCompany, authenticateAdmin } = require('../middlewares/authMiddleware');
+// import contractabi form '../smartContract/product_eth_abi.json';
+
 
 // mongoose model
 const Product = mongoose.model('Product', productSchema);

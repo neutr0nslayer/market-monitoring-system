@@ -4,6 +4,8 @@ package-lock.json
 npm-shrinkwrap.json
 *.log
 *.gz
+*.env
+
 
 # Coveralls
 .nyc_output
@@ -11,3 +13,4 @@ coverage
 
 # Benchmarking
 benchmarks/graphs
+
