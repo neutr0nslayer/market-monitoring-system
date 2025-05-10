@@ -1,52 +1,572 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Product</title>
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-    <style>
-        html, body {
-            height: 100%;
-        }
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        main {
-            flex: 1;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Product</title>
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.14.0/dist/ethers.umd.min.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      flex: 1;
+    }
+  </style>
 </head>
 <body>
-    <%- include('partials/header') %>
+  <%- include('partials/header') %>
 
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Add Product</h1>
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Add Product</h1>
 
-        <form action="/product/create" method="POST" class="needs-validation" novalidate>
-            <div class="mb-3">
-                <label for="productName" class="form-label">Product Name:</label>
-                <input type="text" id="productName" name="productName" class="form-control" required>
-                <div class="invalid-feedback">Please enter a product name.</div>
-            </div>
-            <div class="mb-3">
-                <label for="manufacturer" class="form-label">Manufacturer:</label>
-                <input type="text" id="manufacturer" name="manufacturer" class="form-control" required>
-                <div class="invalid-feedback">Please enter the manufacturer name.</div>
-            </div>
-            <div class="mb-3">
-                <label for="basePrice" class="form-label">Base Price:</label>
-                <input type="number" id="basePrice" name="basePrice" class="form-control" required>
-                <div class="invalid-feedback">Please enter the base price.</div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary">Add Product</button>
-                <button type="button" class="btn btn-secondary" onclick="window.history.back();">Cancel</button>
-            </div>
-        </form>
+    <!-- Wallet Buttons -->
+    <div class="mb-3">
+      <button id="connectBtn" class="btn btn-success">🔌 Connect Wallet</button>
+      <button id="disconnectBtn" class="btn btn-danger">❌ Disconnect</button>
+      <p>Connected Address: <span id="wallet-address" class="fw-bold">Not connected</span></p>
     </div>
 
-    <%- include('partials/footer') %>
+    <!-- Product Form -->
+    <form id="productForm" class="needs-validation" novalidate>
+      <div class="mb-3">
+        <label for="productName" class="form-label">Product Name:</label>
+        <input type="text" id="productName" class="form-control" required>
+        <div class="invalid-feedback">Please enter a product name.</div>
+      </div>
+      <div class="mb-3">
+        <label for="manufacturer" class="form-label">Manufacturer:</label>
+        <input type="text" id="manufacturer" class="form-control" required>
+        <div class="invalid-feedback">Please enter the manufacturer name.</div>
+      </div>
+      <div class="mb-3">
+        <label for="basePrice" class="form-label">Base Price (ETH):</label>
+        <input type="number" id="basePrice" step="0.0001" class="form-control" required>
+        <div class="invalid-feedback">Please enter the base price.</div>
+      </div>
+      <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">Add Product</button>
+        <button type="button" class="btn btn-secondary" onclick="window.history.back();">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <!-- Scripts -->
+  <script>
+    const connectBtn = document.getElementById('connectBtn');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const walletDisplay = document.getElementById('wallet-address');
+    const form = document.getElementById('productForm');
+
+    let currentAccount = null;
+
+    async function connectWallet() {
+      if (typeof window.ethereum === 'undefined') {
+        alert('MetaMask not found. Please install it.');
+        return;
+      }
+
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        currentAccount = accounts[0];
+        walletDisplay.textContent = currentAccount;
+        connectBtn.disabled = true;
+        disconnectBtn.disabled = false;
+      } catch (err) {
+        console.error('Wallet connection failed:', err);
+      }
+    }
+
+    function disconnectWallet() {
+      currentAccount = null;
+      walletDisplay.textContent = 'Not connected';
+      connectBtn.disabled = false;
+      disconnectBtn.disabled = true;
+    }
+
+    connectBtn.addEventListener('click', connectWallet);
+    disconnectBtn.addEventListener('click', disconnectWallet);
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!currentAccount) {
+        alert("Please connect your wallet first.");
+        return;
+      }
+
+      const productName = document.getElementById('productName').value.trim();
+      const manufacturer = document.getElementById('manufacturer').value.trim();
+      const basePrice = document.getElementById('basePrice').value;
+
+      if (!productName || !manufacturer || !basePrice) {
+        alert("All fields are required.");
+        return;
+      }
+
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const YOUR_CONTRACT_ABI_HERE =[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "company",
+				"type": "address"
+			}
+		],
+		"name": "CompanyRegistered",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "company",
+				"type": "address"
+			}
+		],
+		"name": "CompanyRevoked",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "string",
+				"name": "productID",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "productName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "manufacturer",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "basePrice",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "company",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "ProductCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "string",
+				"name": "productID",
+				"type": "string"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "company",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "ProductDeleted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "string",
+				"name": "productID",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "productName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "manufacturer",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "basePrice",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "company",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "ProductUpdated",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "productID",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "productName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "manufacturer",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "basePrice",
+				"type": "uint256"
+			}
+		],
+		"name": "createProduct",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "productID",
+				"type": "string"
+			}
+		],
+		"name": "deleteProduct",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "company",
+				"type": "address"
+			}
+		],
+		"name": "registerCompany",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "company",
+				"type": "address"
+			}
+		],
+		"name": "revokeCompany",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "productID",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "productName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "manufacturer",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "basePrice",
+				"type": "uint256"
+			}
+		],
+		"name": "updateProduct",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "admin",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllProducts",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "productID",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "productName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "manufacturer",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "basePrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "company",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "createdAt",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "updatedAt",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "exists",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct ProductRegistry.Product[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "productID",
+				"type": "string"
+			}
+		],
+		"name": "getProduct",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "company",
+				"type": "address"
+			}
+		],
+		"name": "getProductsByCompany",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "productID",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "productName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "manufacturer",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "basePrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "company",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "createdAt",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "updatedAt",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "exists",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct ProductRegistry.Product[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "isCompany",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+] ;
+        const contract = new ethers.Contract("0xE25E44DDe1282Ca97c9b269001586932323Da1A4", YOUR_CONTRACT_ABI_HERE, signer);
+        const generateProductID = (companyID, productName) => {
+          const cleanName = productName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+          return `${companyID}|${cleanName}`;
+        };
+        const tx = await contract.createProduct(generateProductID(manufacturer, productName),productName, manufacturer, ethers.parseEther(basePrice.toString()));
+        alert("Transaction sent! TX hash: " + tx.hash);
+
+        await tx.wait();
+        alert("✅ Product successfully added to the blockchain!");
+
+        form.reset();
+      } catch (error) {
+        console.error(error);
+        alert("❌ Error: " + (error.reason || error.message));
+      }
+    });
+  </script>
 </body>
 </html>
