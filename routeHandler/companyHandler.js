@@ -74,7 +74,11 @@ router.get('/submit-product', async (req, res) => {
 
     // Fetch products for the company from the blockchain
     const company = await User.findById(companyId);
-    const companyAddress = company.companyDetails.address;
+    const companyAddress = req.cookies.ethAddress || company.companyDetails?.address;
+
+    if (!companyAddress) {
+        return res.status(400).json({ error: 'Company Ethereum address not found.' });
+    }
     const blockchainProducts = await getProductsByCompany(companyAddress);
 
     // Fetch unique company names along with their user IDs for submission purposes
