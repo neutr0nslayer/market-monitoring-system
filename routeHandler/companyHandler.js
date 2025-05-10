@@ -36,7 +36,6 @@ async function getProductsByCompany(companyAddress) {
     }));
 }
 
-// Add this route to fetch company details and products
 router.get('/dashboard', authenticateCompany, async (req, res) => {
     try {
         const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -44,16 +43,24 @@ router.get('/dashboard', authenticateCompany, async (req, res) => {
 
         // Fetch company details
         const company = await User.findById(companyId);
+        if (!company) {
+            return res.status(404).json({ error: 'Company not found' });
+        }
 
-        // Fetch products from the blockchain by company address
-        const companyAddress = '0xEA5AeB46D6c6de6a36b59B21cf31589f0E4D562D'; // Assuming this is stored in the company model
+        // ✅ Get Ethereum address from cookie OR from company record
+        const companyAddress = req.cookies.ethAddress || company.companyDetails?.address;
+
+        if (!companyAddress) {
+            return res.status(400).json({ error: 'Company Ethereum address not found.' });
+        }
+
+        // Fetch products from the blockchain
         const blockchainProducts = await getProductsByCompany(companyAddress);
 
-        // Fetch products from the database (if needed for comparison)
+        // Fetch products from database
         const products = await Product.find({ companyId });
 
-        // Combine the blockchain products and database products if necessary
-        res.render('companyDashboard', { company, products: blockchainProducts }); // Pass blockchain products
+        res.render('companyDashboard', { company, products: blockchainProducts });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error while fetching dashboard data' });
