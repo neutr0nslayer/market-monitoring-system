@@ -19,7 +19,7 @@ const Product = mongoose.model('Product', product);
 const Block = mongoose.model('Block', block);
 
 // Ethereum contract details
-const contractAddress = "0xE25E44DDe1282Ca97c9b269001586932323Da1A4";
+const contractAddress = process.env.CONTRACT_ADDRESS;
 const abi = require('../smartContract/product_eth_abi.json');
 const provider = new ethers.JsonRpcProvider(process.env.INFURA_API_URL);
 const contract = new ethers.Contract(contractAddress, abi, provider);

@@ -7,16 +7,9 @@
   <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.14.0/dist/ethers.umd.min.js"></script>
   <style>
-    html, body {
-      height: 100%;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-    main {
-      flex: 1;
-    }
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; }
+    main { flex: 1; }
   </style>
 </head>
 <body>
@@ -36,17 +29,17 @@
     <form id="productForm" class="needs-validation" novalidate>
       <div class="mb-3">
         <label for="productName" class="form-label">Product Name:</label>
-        <input type="text" id="productName" class="form-control" required>
+        <input type="text" id="productName" name="productName" class="form-control" required>
         <div class="invalid-feedback">Please enter a product name.</div>
       </div>
       <div class="mb-3">
         <label for="manufacturer" class="form-label">Manufacturer:</label>
-        <input type="text" id="manufacturer" class="form-control" required>
+        <input type="text" id="manufacturer" name="manufacturer" class="form-control" required>
         <div class="invalid-feedback">Please enter the manufacturer name.</div>
       </div>
       <div class="mb-3">
-        <label for="basePrice" class="form-label">Base Price (ETH):</label>
-        <input type="number" id="basePrice" step="0.0001" class="form-control" required>
+        <label for="basePrice" class="form-label">Base Price:</label>
+        <input type="number" id="basePrice" name="basePrice" class="form-control" required>
         <div class="invalid-feedback">Please enter the base price.</div>
       </div>
       <div class="d-flex justify-content-between">
@@ -58,63 +51,40 @@
 
   <%- include('partials/footer') %>
 
-  <!-- Scripts -->
+  <!-- ABI loading and MetaMask logic -->
   <script>
-    const connectBtn = document.getElementById('connectBtn');
-    const disconnectBtn = document.getElementById('disconnectBtn');
-    const walletDisplay = document.getElementById('wallet-address');
-    const form = document.getElementById('productForm');
+    let signer, userAddress;
 
-    let currentAccount = null;
-
-    async function connectWallet() {
-      if (typeof window.ethereum === 'undefined') {
-        alert('MetaMask not found. Please install it.');
-        return;
+    document.getElementById('connectBtn').onclick = async () => {
+      if (window.ethereum) {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        userAddress = await signer.getAddress();
+        document.getElementById('wallet-address').textContent = userAddress;
+      } else {
+        alert('Please install MetaMask!');
       }
+    };
 
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        currentAccount = accounts[0];
-        walletDisplay.textContent = currentAccount;
-        connectBtn.disabled = true;
-        disconnectBtn.disabled = false;
-      } catch (err) {
-        console.error('Wallet connection failed:', err);
-      }
-    }
+    document.getElementById('disconnectBtn').onclick = () => {
+      signer = null;
+      userAddress = null;
+      document.getElementById('wallet-address').textContent = 'Not connected';
+    };
 
-    function disconnectWallet() {
-      currentAccount = null;
-      walletDisplay.textContent = 'Not connected';
-      connectBtn.disabled = false;
-      disconnectBtn.disabled = true;
-    }
-
-    connectBtn.addEventListener('click', connectWallet);
-    disconnectBtn.addEventListener('click', disconnectWallet);
-
-    form.addEventListener('submit', async (e) => {
+    document.getElementById('productForm').onsubmit = async (e) => {
       e.preventDefault();
+      if (!signer) return alert("Connect wallet first.");
 
-      if (!currentAccount) {
-        alert("Please connect your wallet first.");
-        return;
-      }
-
-      const productName = document.getElementById('productName').value.trim();
-      const manufacturer = document.getElementById('manufacturer').value.trim();
+      const productName = document.getElementById('productName').value;
+      const manufacturer = document.getElementById('manufacturer').value;
       const basePrice = document.getElementById('basePrice').value;
 
-      if (!productName || !manufacturer || !basePrice) {
-        alert("All fields are required.");
-        return;
-      }
+      const productID = manufacturer.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() + "|" + productName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 
       try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const YOUR_CONTRACT_ABI_HERE =[
+        const res = [
 	{
 		"anonymous": false,
 		"inputs": [
@@ -549,24 +519,28 @@
 		"stateMutability": "view",
 		"type": "function"
 	}
-] ;
-        const contract = new ethers.Contract("0xE25E44DDe1282Ca97c9b269001586932323Da1A4", YOUR_CONTRACT_ABI_HERE, signer);
-        const generateProductID = (companyID, productName) => {
-          const cleanName = productName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-          return `${companyID}|${cleanName}`;
-        };
-        const tx = await contract.createProduct(generateProductID(manufacturer, productName),productName, manufacturer, ethers.parseEther(basePrice.toString()));
-        alert("Transaction sent! TX hash: " + tx.hash);
+];
+        const abi = res;
+        const contract = new ethers.Contract('<%= process.env.CONTRACT_ADDRESS %>', abi, signer);
 
+        const tx = await contract.createProduct(productID, productName, manufacturer, basePrice);
         await tx.wait();
-        alert("✅ Product successfully added to the blockchain!");
+        alert("Product added to blockchain!");
 
-        form.reset();
-      } catch (error) {
-        console.error(error);
-        alert("❌ Error: " + (error.reason || error.message));
+        // Optional: POST to backend for DB entry
+        await fetch('/product/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productName, manufacturer, basePrice })
+        });
+
+        window.location.href = "/product/myproducts";
+
+      } catch (err) {
+        console.error(err);
+        alert("Error creating product: " + err.message);
       }
-    });
+    };
   </script>
 </body>
 </html>

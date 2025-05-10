@@ -12,6 +12,7 @@ dotenv.config();
 const Product = mongoose.model('Product', productSchema);
 
 // Setup ethers
+
 const provider = new ethers.JsonRpcProvider(process.env.INFURA_API_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, contractABI, wallet);
@@ -28,24 +29,30 @@ router.get('/add', authenticateCompany, (req, res) => {
 });
 
 // Route: Create new product (DB + Blockchain)
+// Route: Create new product (DB + Blockchain)
 router.post('/create', authenticateCompany, async (req, res) => {
   try {
     const { productName, manufacturer, basePrice } = req.body;
     const token = req.cookies.token;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
     const companyId = decoded.userId;
-    const productID = generateProductID(companyId, productName);
+    const productID = generateProductID(manufacturer, productName);
 
     const existingProduct = await Product.findOne({ productID });
     if (existingProduct) {
       return res.status(400).json({ error: 'Product already exists' });
     }
 
-    // Save to blockchain
-    const tx = await contract.createProduct(productID, productName, manufacturer, basePrice);
-    await tx.wait();
+    
 
-    // Save to database
+    // Save to MongoDB
     const newProduct = new Product({
       productID,
       productName,
@@ -61,6 +68,7 @@ router.post('/create', authenticateCompany, async (req, res) => {
     res.status(500).json({ error: 'Error creating product' });
   }
 });
+
 
 // Route: Get products for current company
 router.get('/myproducts', authenticateCompany, async (req, res) => {
