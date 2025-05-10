@@ -4,7 +4,7 @@ package-lock.json
 npm-shrinkwrap.json
 *.log
 *.gz
-*.env
+.env.example
 
 
 # Coveralls
@@ -14,3 +14,4 @@ coverage
 # Benchmarking
 benchmarks/graphs
 
+.env
