@@ -3,13 +3,14 @@ const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
     productID: {
-        type: String,
+        type: String, // companyID|productName|batchNumber
         required: true
     },
     productName: {
         type: String,
         required: true
     },
+    // batchNumber, quantity 
     manufacturer: {
         type: String, 
         required: true
@@ -34,3 +35,4 @@ const productSchema = new mongoose.Schema({
 });
 
 module.exports = productSchema;
+

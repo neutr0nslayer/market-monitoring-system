@@ -29,7 +29,7 @@ router.get('/add', authenticateCompany, (req, res) => {
 });
 
 // Route: Create new product (DB + Blockchain)
-// Route: Create new product (DB + Blockchain)
+
 router.post('/create', authenticateCompany, async (req, res) => {
   try {
     const { productName, manufacturer, basePrice } = req.body;

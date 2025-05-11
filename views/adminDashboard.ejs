@@ -96,8 +96,14 @@
     <div class="mt-4">
       <h4>Register a Company on Blockchain</h4>
       <div class="mb-3">
+
+		<!-- <label for="companySelect" class="form-label">Select Company</label>
+    	<select id="companySelect" class="form-select">
+    	  <option value="">-- Choose Company --</option>
+    	</select> -->
+
         <label for="companyWallet" class="form-label">Company Wallet Address</label>
-        <input type="text" id="companyWallet" class="form-control" placeholder="0x..." />
+		<input type="text" id="companyWallet" class="form-control" placeholder="0x..." />
       </div>
       <button id="registerCompanyBtn" class="btn btn-primary">🏢 Register Company</button>
     </div>
@@ -110,12 +116,37 @@
 
 
   <script>
+	// document.addEventListener("DOMContentLoaded", async () => {
+	// 	const select = document.getElementById("companySelect");
+	// 	const walletInput = document.getElementById("companyWallet");
+
+	// 	try {
+	// 	  const res = await fetch("admin/companies");
+	// 	  const json = await res.json();
+
+	// 	  json.data.forEach(company => {
+	// 	    const option = document.createElement("option");
+	// 	    // option.value = company.walletAddress;
+	// 	    option.textContent = company.name;
+	// 		option.value = company.companyDetails.name;
+	// 	    select.appendChild(option);
+	// 	  });
+
+	// 	  select.addEventListener("change", () => {
+	// 	    walletInput.value = select.value || '';
+	// 	  });
+
+	// 	} catch (err) {
+	// 	  console.error("Failed to load companies:", err);
+	// 	  alert("❌ Failed to load company list");
+	// 	}
+	// });
     const connectBtn = document.getElementById('connectBtn');
     const disconnectBtn = document.getElementById('disconnectBtn');
     const walletDisplay = document.getElementById('wallet-address');
     const registerBtn = document.getElementById('registerCompanyBtn');
     const companyWalletInput = document.getElementById('companyWallet');
-
+	const nameInput = document.getElementById('name');
     let currentAccount = null;
 
     async function connectWallet() {
